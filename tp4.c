@@ -20,6 +20,7 @@ void InsertarNodo(Nodo **Start , Nodo *Nodo);
 void RecorrerLista(Nodo *Start);
 Nodo* BuscarNodo(Nodo ** Start,int id);
 Nodo* QuitarNodo(Nodo **Start, int id);
+Nodo* BuscarNodoPorClave(Nodo ** Start, char* clave);
 
 int main(){
     srand(time(NULL));
@@ -30,7 +31,7 @@ int main(){
     char *Buff,*pdescripcion;
     Buff=(char *) malloc(100*sizeof(char));
 
-    int opcion,id=999,longNombre,duracion,idAux;
+    int opcion,id=999,longNombre,duracion,idAux,opcion2,control;
     
     do{
         printf("--Carga de Datos. \n\tOPCIONES:--");
@@ -59,13 +60,18 @@ int main(){
         
     }while(opcion!=2);
 
-    printf("\n ------------------Lista de Tareas Pendientes----------------");
+    printf("\n ------------------Lista de Tareas Pendientes cargadas con exito----------------");
     RecorrerLista(StartListaPendiente);
     
     //parte para buscar id en la lista de pendientes. 
-    printf("Ingresar ID de Tarea a marcar realizada: ");
-    scanf("%d",&idAux); //id auxiliar como dato para buscar el id en la lista. 
-    
+    do{
+        printf("\n\t DESEA MARCA UNA TAREA PENDIENTE A REALIZADA\n 1.SI\n 2.NO\n\t Ingresar OPCION: ");
+        scanf("%d",&control);
+        if(control==1){
+            printf("\n\tIngresar ID de Tarea a marcar realizada: ");
+            scanf("%d",&idAux); //id auxiliar como dato para buscar el id en la lista. 
+            getchar();
+            fflush(stdin);
     /*Nodo * Buscardor=BuscarNodo(&StartListaPendiente,idAux); //recibe el nodo si lo encuntra y NULL si no lo encuntra.
     if(Buscardor){ //con este if filtramos si esta o no el nodo encontrado.. 
         printf("\n ID ENCONTRADO -------");
@@ -76,21 +82,90 @@ int main(){
     }
     */
 
-    //esta parate la hacemos para quitar un nodo de la lista pendientes. 
+            //esta parate la hacemos para quitar un nodo de la lista pendientes. 
 
-    Nodo *NodoAotraLista= QuitarNodo(&StartListaPendiente,idAux); //devuelve el nodo quitado en la lista anterior.. 
+            Nodo *NodoAotraLista= QuitarNodo(&StartListaPendiente,idAux); //devuelve el nodo quitado en la lista anterior.. 
     
-    if(NodoAotraLista){ //si encontro el nodo se cumple la condicion
-        InsertarNodo(&StartListaRealizadas,NodoAotraLista); //inserta el nodo en la nueva lista
+            if(NodoAotraLista){ //si encontro el nodo se cumple la condicion
+            InsertarNodo(&StartListaRealizadas,NodoAotraLista); //inserta el nodo en la nueva lista
 
-    }else printf("Id no encontrado en la lista de pendientes."); //caso en que devuelva NULL la funcion quitar nodo. 
-
+            }else printf("Id no encontrado en la lista de pendientes."); //caso en que devuelva NULL la funcion quitar nodo. 
+        }  }while(control!=2);      
     //muestro ambas listas:
-
+    printf("\nLista tareas realizadas quedo como : \n");
     RecorrerLista(StartListaRealizadas);
-    printf("\nLista pendiente quedo como : \n");
+    printf("\nLista tareas pendiente quedo como : \n");
     RecorrerLista(StartListaPendiente);
+   
     
+    printf("\n\t\t Menu busqueda: Ingrese si va a buscar por---- \n 1. por ID. \n 2. Por palabra Clave\n INGRESAR ELECCION: ");
+    scanf("%d",&opcion2);
+    getchar();
+    fflush(stdin);
+    
+
+
+    switch (opcion2)
+    {
+    case 1: {
+                    printf("\nIngresar ID a buscar: ");
+                    scanf("%d",&idAux);
+                    
+                    Nodo * Buscardor=BuscarNodo(&StartListaPendiente,idAux); //recibe el nodo si lo encuntra y NULL si no lo encuntra.
+                    if(Buscardor){ //con este if filtramos si esta o no el nodo encontrado.. 
+                        printf("\n ID ENCONTRADO EN LISTA DE PENDIENTES");
+                        printf("\nid del nodo: %d",Buscardor->T.TareaID);
+                        printf("\ndescripcion:");
+                        puts(Buscardor->T.Descripcion);
+                        printf("duracion: %d",Buscardor->T.Duracion);
+                    }else{
+                            Nodo * Buscardor=BuscarNodo(&StartListaRealizadas,idAux);
+                                if(Buscardor){
+                                    printf("\n ID ENCONTRADO EN LISTA DE REALIZADOS");
+                                    printf("\nid del nodo: %d",Buscardor->T.TareaID);
+                                    printf("\ndescripcion:");
+                                    puts(Buscardor->T.Descripcion);
+                                    printf("duracion: %d",Buscardor->T.Duracion);
+                                    } else printf("NO SE ENCONTRO EL ID EN NINGUNA LISTA.");
+                    }
+    }
+        
+        break;
+        
+     case 2:
+                {
+                    printf("\nIngresar palabra clave a buscar en la descripcion de la tarde : ");
+                    gets(Buff);
+                    longNombre=strlen(Buff);
+                    pdescripcion= (char *) malloc((longNombre+1)*sizeof(char));
+                    strcpy(pdescripcion,Buff);
+                    
+                    Nodo *Buscador=BuscarNodoPorClave(&StartListaPendiente,pdescripcion);
+                    if(Buscador){
+                        printf("\n ID ENCONTRADO EN LISTA DE PENDIENTES");
+                        printf("\nid del nodo: %d",Buscador->T.TareaID);
+                        printf("\ndescripcion:");
+                        puts(Buscador->T.Descripcion);
+                        printf("duracion: %d",Buscador->T.Duracion);
+
+                    }else {
+                         Nodo *Buscador=BuscarNodoPorClave(&StartListaPendiente,pdescripcion);
+                            if(Buscador){
+                            printf("\n ID ENCONTRADO EN LISTA DE REALIZADAS");
+                            printf("\nid del nodo: %d",Buscador->T.TareaID);
+                            printf("\ndescripcion:");
+                            puts(Buscador->T.Descripcion);
+                            printf("duracion: %d",Buscador->T.Duracion);}
+                            else printf("NO SE ENCONTRO LA PALABRA CLAVE EN NINGUNA LISTA.");
+                    }
+                }
+        break;    
+    
+    default: printf("No ingreso ninguna opcion valida");
+        break;
+    }
+
+
     getchar();
 
 
@@ -162,4 +237,15 @@ Nodo * QuitarNodo(Nodo **Start, int id) {
         return temporal;
     }
     return NULL;
+}
+
+Nodo* BuscarNodoPorClave(Nodo ** Start, char* clave)
+{
+  Nodo* Aux = *Start;
+  
+  while (Aux && strstr(Aux->T.Descripcion,clave)==NULL )
+  {
+    Aux = Aux->Siguiente;
+  }
+  return Aux;
 }
