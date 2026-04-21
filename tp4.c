@@ -18,16 +18,19 @@ Nodo* ListaVacia();
 Nodo* CrearNodoTarea(int id,char* pdescripcion,int duracion);
 void InsertarNodo(Nodo **Start , Nodo *Nodo);
 void RecorrerLista(Nodo *Start);
+Nodo* BuscarNodo(Nodo ** Start,int id);
+Nodo* QuitarNodo(Nodo **Start, int id);
 
 int main(){
     srand(time(NULL));
 
     Nodo* StartListaPendiente=ListaVacia();
+    Nodo* StartListaRealizadas=ListaVacia();
 
     char *Buff,*pdescripcion;
     Buff=(char *) malloc(100*sizeof(char));
 
-    int opcion,id=999,longNombre,duracion;
+    int opcion,id=999,longNombre,duracion,idAux;
     
     do{
         printf("--Carga de Datos. \n\tOPCIONES:--");
@@ -56,8 +59,38 @@ int main(){
         
     }while(opcion!=2);
 
+    printf("\n ------------------Lista de Tareas Pendientes----------------");
     RecorrerLista(StartListaPendiente);
+    
+    //parte para buscar id en la lista de pendientes. 
+    printf("Ingresar ID de Tarea a marcar realizada: ");
+    scanf("%d",&idAux); //id auxiliar como dato para buscar el id en la lista. 
+    
+    /*Nodo * Buscardor=BuscarNodo(&StartListaPendiente,idAux); //recibe el nodo si lo encuntra y NULL si no lo encuntra.
+    if(Buscardor){ //con este if filtramos si esta o no el nodo encontrado.. 
+        printf("\n ID ENCONTRADO -------");
+         printf("\nid del nodo: %d",Buscardor->T.TareaID);
+        printf("\ndescripcion:");
+        puts(Buscardor->T.Descripcion);
+        printf("duracion: %d",Buscardor->T.Duracion);
+    }
+    */
 
+    //esta parate la hacemos para quitar un nodo de la lista pendientes. 
+
+    Nodo *NodoAotraLista= QuitarNodo(&StartListaPendiente,idAux); //devuelve el nodo quitado en la lista anterior.. 
+    
+    if(NodoAotraLista){ //si encontro el nodo se cumple la condicion
+        InsertarNodo(&StartListaRealizadas,NodoAotraLista); //inserta el nodo en la nueva lista
+
+    }else printf("Id no encontrado en la lista de pendientes."); //caso en que devuelva NULL la funcion quitar nodo. 
+
+    //muestro ambas listas:
+
+    RecorrerLista(StartListaRealizadas);
+    printf("\nLista pendiente quedo como : \n");
+    RecorrerLista(StartListaPendiente);
+    
     getchar();
 
 
@@ -100,4 +133,33 @@ void RecorrerLista(Nodo *Start){
         printf("duracion: %d",aux->T.Duracion);
         aux=aux->Siguiente;
     }
+}
+
+Nodo* BuscarNodo(Nodo ** Start,int id)
+{
+  Nodo* Aux = *Start;
+  while (Aux && Aux->T.TareaID != id)
+  {
+    Aux = Aux->Siguiente;
+  }
+  return Aux;
+}
+
+
+Nodo * QuitarNodo(Nodo **Start, int id) {
+    Nodo ** aux = Start;  // Usamos un puntero doble para apuntar al puntero actual  de la lista enlazada. 
+    
+    // Iteramos sobre la lista hasta encontrar el dato o alcanzar el final de la lista.
+    while (*aux != NULL && (*aux)->T.TareaID != id) {
+        aux = &(*aux)->Siguiente;
+    }
+
+    // Si encontramos el nodo con el dato especificado, lo quitamos de la lista y retornamos al programa para su posterior eliminación.
+    if (*aux) {
+        Nodo *temporal = *aux;  // Guardamos el nodo a eliminar en una variable temporal.
+        *aux = (*aux)->Siguiente;  // Desvinculamos el nodo de la lista.
+        temporal->Siguiente =NULL; // Ponemos en NULL el puntero siguiente para asegura no llevar vinculos por fuera de la lista
+        return temporal;
+    }
+    return NULL;
 }
